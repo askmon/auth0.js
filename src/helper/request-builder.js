@@ -1,5 +1,10 @@
 /* eslint-disable no-param-reassign */
 var request = require('superagent');
+require('superagent-proxy')(request);
+var proxy = `${process.env.PROXY_HOST}:${process.env.PROXY_PORT}`
+if (proxy.indexOf('http') === -1) {
+  proxy = `http://${proxy}`
+}
 var base64Url = require('./base64_url');
 var version = require('../version');
 
@@ -13,23 +18,23 @@ function RequestWrapper(req) {
   this.headers = req._header;
 }
 
-RequestWrapper.prototype.abort = function() {
+RequestWrapper.prototype.abort = function () {
   this.request.abort();
 };
 
-RequestWrapper.prototype.getMethod = function() {
+RequestWrapper.prototype.getMethod = function () {
   return this.method;
 };
 
-RequestWrapper.prototype.getBody = function() {
+RequestWrapper.prototype.getBody = function () {
   return this.body;
 };
 
-RequestWrapper.prototype.getUrl = function() {
+RequestWrapper.prototype.getUrl = function () {
   return this.url;
 };
 
-RequestWrapper.prototype.getHeaders = function() {
+RequestWrapper.prototype.getHeaders = function () {
   return this.headers;
 };
 
@@ -39,23 +44,23 @@ function RequestObj(req) {
   this.request = req;
 }
 
-RequestObj.prototype.set = function(key, value) {
-  this.request = this.request.set(key, value);
+RequestObj.prototype.set = function (key, value) {
+  this.request = this.request.proxy(proxy).set(key, value);
   return this;
 };
 
-RequestObj.prototype.send = function(body) {
-  this.request = this.request.send(body);
+RequestObj.prototype.send = function (body) {
+  this.request = this.request.proxy(proxy).send(body);
   return this;
 };
 
-RequestObj.prototype.withCredentials = function() {
-  this.request = this.request.withCredentials();
+RequestObj.prototype.withCredentials = function () {
+  this.request = this.request.proxy(proxy).withCredentials();
   return this;
 };
 
-RequestObj.prototype.end = function(cb) {
-  this.request = this.request.end(cb);
+RequestObj.prototype.end = function (cb) {
+  this.request = this.request.proxy(proxy).end(cb);
   return new RequestWrapper(this.request);
 };
 
@@ -68,7 +73,7 @@ function RequestBuilder(options) {
   this.headers = options.headers || {};
 }
 
-RequestBuilder.prototype.setCommonConfiguration = function(ongoingRequest, options) {
+RequestBuilder.prototype.setCommonConfiguration = function (ongoingRequest, options) {
   options = options || {};
 
   if (this._timesToRetryFailedRequests > 0) {
@@ -95,21 +100,21 @@ RequestBuilder.prototype.setCommonConfiguration = function(ongoingRequest, optio
   return ongoingRequest;
 };
 
-RequestBuilder.prototype.getTelemetryData = function() {
+RequestBuilder.prototype.getTelemetryData = function () {
   var clientInfo = this._telemetryInfo || { name: 'auth0.js', version: version.raw };
   var jsonClientInfo = JSON.stringify(clientInfo);
   return base64Url.encode(jsonClientInfo);
 };
 
-RequestBuilder.prototype.get = function(url, options) {
+RequestBuilder.prototype.get = function (url, options) {
   return new RequestObj(this.setCommonConfiguration(request.get(url), options));
 };
 
-RequestBuilder.prototype.post = function(url, options) {
+RequestBuilder.prototype.post = function (url, options) {
   return new RequestObj(this.setCommonConfiguration(request.post(url), options));
 };
 
-RequestBuilder.prototype.patch = function(url, options) {
+RequestBuilder.prototype.patch = function (url, options) {
   return new RequestObj(this.setCommonConfiguration(request.patch(url), options));
 };
 
