@@ -40,6 +40,7 @@
     "idtoken-verifier": "^1.1.1",
     "qs": "^6.4.0",
     "superagent": "^3.8.2",
+    "superagent-proxy": "^1.0.3",
     "url-join": "^1.1.0",
     "winchan": "^0.2.0"
   },
