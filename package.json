@@ -1,7 +1,7 @@
 {
-  "name": "auth0-js",
+  "name": "auth0-js-proxied",
   "version": "9.3.1",
-  "description": "Auth0 headless browser sdk",
+  "description": "Auth0 headless browser sdk with proxy support",
   "main": "src/index.js",
   "keywords": [
     "auth0",
@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/auth0/auth0.js"
+    "url": "git://github.com/askmon/auth0.js"
   },
   "author": "Auth0",
   "license": "MIT",
