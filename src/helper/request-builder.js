@@ -1,7 +1,10 @@
 /* eslint-disable no-param-reassign */
 var request = require('superagent');
 require('superagent-proxy')(request);
-var proxy = `${process.env.PROXY_HOST}:${process.env.PROXY_PORT}`
+var proxy = null;
+if (process.env.PROXY_HOST) {
+  proxy = `${process.env.PROXY_HOST}:${process.env.PROXY_PORT}`
+}
 if (proxy.indexOf('http') === -1) {
   proxy = `http://${proxy}`
 }
@@ -45,22 +48,38 @@ function RequestObj(req) {
 }
 
 RequestObj.prototype.set = function (key, value) {
-  this.request = this.request.proxy(proxy).set(key, value);
+  if (proxy) {
+    this.request = this.request.proxy(proxy).set(key, value);
+  } else {
+    this.request = this.request.set(key, value);
+  }
   return this;
 };
 
 RequestObj.prototype.send = function (body) {
-  this.request = this.request.proxy(proxy).send(body);
+  if (proxy) {
+    this.request = this.request.proxy(proxy).send(body);
+  } else {
+    this.request.send(body);
+  }
   return this;
 };
 
 RequestObj.prototype.withCredentials = function () {
-  this.request = this.request.proxy(proxy).withCredentials();
+  if (proxy) {
+    this.request = this.request.proxy(proxy).withCredentials();
+  } else {
+    this.request = this.request.withCredentials();
+  }
   return this;
 };
 
 RequestObj.prototype.end = function (cb) {
-  this.request = this.request.proxy(proxy).end(cb);
+  if (proxy) {
+    this.request = this.request.proxy(proxy).end(cb);
+  } else {
+    this.request = this.request.end(cb);
+  }
   return new RequestWrapper(this.request);
 };
 
